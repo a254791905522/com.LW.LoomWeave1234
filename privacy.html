@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loom Weave Puzzle — Privacy Draft</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #070708;
+            --char: #101014;
+            --panel: #17171d;
+            --cyan: #2ee6ff;
+            --yellow: #ffe14a;
+            --red: #ff3b4a;
+            --mist: #9a9aa6;
+            --text: #f3f3f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Outfit", sans-serif;
+            background: var(--ink);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .warp {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0,
+                    transparent 72px,
+                    rgba(255, 225, 74, 0.045) 72px,
+                    rgba(255, 225, 74, 0.045) 74px
+                );
+        }
+
+        .sheet { position: relative; z-index: 1; }
+
+        .top {
+            padding: 18px 6vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            background: rgba(7, 7, 8, 0.92);
+            border-bottom: 3px solid var(--yellow);
+        }
+
+        .mark {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .mark img {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #000;
+        }
+
+        .mark strong {
+            font-family: "Unbounded", sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .mark em {
+            display: block;
+            font-style: normal;
+            color: var(--mist);
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+
+        .jump {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .jump a {
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .hero-note {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 48px 6vw 12px;
+        }
+
+        .key {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .sq {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            background: #2a2a2e;
+        }
+
+        .sq.lit { background: var(--yellow); }
+
+        h1 {
+            font-family: "Unbounded", sans-serif;
+            font-size: clamp(28px, 4.4vw, 44px);
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+        }
+
+        .blurb {
+            color: var(--mist);
+            font-size: 18px;
+            max-width: 680px;
+        }
+
+        .rows {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 28px 6vw 72px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .row {
+            background: var(--panel);
+            border-radius: 22px;
+            padding: 24px 24px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 6px solid var(--cyan);
+        }
+
+        .row.alt { border-left-color: var(--yellow); }
+        .row.warn { border-left-color: var(--red); }
+
+        .row header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .row header span {
+            font-family: "Unbounded", sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--yellow);
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        p { color: var(--mist); margin-bottom: 10px; }
+        p:last-child { margin-bottom: 0; }
+
+        ul {
+            margin: 6px 0 10px 18px;
+            color: var(--mist);
+        }
+
+        li { margin-bottom: 6px; }
+
+        .ticket {
+            margin-top: 8px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(46, 230, 255, 0.06);
+            color: var(--text);
+            border: 1px dashed rgba(46, 230, 255, 0.28);
+        }
+
+        footer {
+            padding: 22px 6vw 36px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: var(--mist);
+            font-size: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        footer a { color: var(--cyan); text-decoration: none; }
+
+        @media (max-width: 640px) {
+            .top { padding: 14px 18px; }
+            .row { padding: 18px; }
+            .row header { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="warp" aria-hidden="true"></div>
+<div class="sheet">
+    <div class="top">
+        <a class="mark" href="index.html">
+            <img src="assets/icon.jpg" alt="Loom Weave Puzzle icon">
+            <span>
+                <strong>Loom Weave Puzzle</strong>
+                <em>Privacy draft</em>
+            </span>
+        </a>
+        <div class="jump">
+            <a href="index.html">Back to the loom</a>
+            <a href="https://apps.apple.com/us/app/loom-weave-puzzle/id6809432285?uo=4">App Store</a>
+        </div>
+    </div>
+
+    <div class="hero-note">
+        <div class="key" aria-hidden="true">
+            <i class="sq lit"></i><i class="sq"></i><i class="sq lit"></i><i class="sq"></i>
+            <i class="sq lit"></i><i class="sq lit"></i><i class="sq"></i><i class="sq lit"></i>
+        </div>
+        <h1>How this loom treats your information</h1>
+        <p class="blurb">This draft belongs to Loom Weave Puzzle only. It describes what stays on your device while you raise warps and send the shuttle, and what advertising technology may see when the free game is in use.</p>
+    </div>
+
+    <main class="rows">
+        <article class="row" id="studio">
+            <header><span>Row 01</span><span>Effective 21 September 2026</span></header>
+            <h2>The product this notice covers</h2>
+            <p>Loom Weave Puzzle is a free iPhone and iPad weaving puzzle. You play locally: set warp threads, match a target draft, and complete shuttle passes. This page is a product notice, not a personal blog and not a list of private contact details.</p>
+            <p>You do not create an account to sit at the loom. There is no player profile to publish, and we do not ask for a home address or a private inbox as a condition of play.</p>
+        </article>
+
+        <article class="row alt" id="on-loom">
+            <header><span>Row 02</span><span>Stored beside the heddles</span></header>
+            <h2>What remains on your device</h2>
+            <p>The loom keeps session cloth on the device so a paused pass can resume:</p>
+            <ul>
+                <li>Current level, remaining taps, and whether a star goal is still open</li>
+                <li>Which warp threads are raised or lowered, and which target row is next</li>
+                <li>Shuttle progress on the developing fabric</li>
+                <li>Coins, purchased or unused power-ups, and pause state</li>
+                <li>Simple interface choices if you change them</li>
+            </ul>
+            <p>Removing the app clears this local weave. It is not uploaded as a cloud tapestry and is not used to name you in public.</p>
+        </article>
+
+        <article class="row" id="threads">
+            <header><span>Row 03</span><span>Categories, not a diary</span></header>
+            <h2>Information the game may process</h2>
+            <p>Playing does not require your name, email, photos, contacts, or precise GPS. Depending on the build and the permissions you give iOS, these categories can appear:</p>
+            <ul>
+                <li><strong>On-device play events</strong> — completed rows, failed tap budgets, and level results that keep the puzzle honest</li>
+                <li><strong>Device context</strong> — iOS version, device class, language, and app version, so the loom can run on supported hardware</li>
+                <li><strong>Usage data for advertising</strong> — the App Store nutrition label for this title states that usage data may be linked to you and may be used to track you across other companies’ apps and sites for third-party advertising</li>
+                <li><strong>Advertising identifiers</strong> — such as the Identifier for Advertisers, only if Apple shows App Tracking Transparency and you allow tracking</li>
+                <li><strong>Network facts seen by partners</strong> — IP address, user-agent, and a coarse region inferred from the connection when an ad request leaves the device</li>
+            </ul>
+            <p class="ticket">You can say no to tracking in the iOS prompt and change the choice later in Settings → Privacy &amp; Security. The loom still weaves if you refuse.</p>
+        </article>
+
+        <article class="row warn" id="ads">
+            <header><span>Row 04</span><span>The free-shuttle cost</span></header>
+            <h2>Advertising inside a free download</h2>
+            <p>Loom Weave Puzzle is free and may show advertisements from third-party networks. Those partners can collect or receive limited technical and usage information to choose a creative, measure a view or tap, and reduce invalid traffic.</p>
+            <p>Typical advertising payloads include a resettable advertising ID when you permit it, IP address, user-agent, approximate location from IP, and whether an impression completed. Partners may keep cookies or similar IDs in their own systems.</p>
+            <p>We do not sell a ledger of your warp combinations. We do not invent an extra player account to thicken an ad profile. Apple’s tracking prompt and the Limit Ad Tracking / Allow Apps to Request to Track controls remain the main switches for a personalized identifier.</p>
+        </article>
+
+        <article class="row alt" id="why">
+            <header><span>Row 05</span><span>Purpose of each thread</span></header>
+            <h2>Why anything is collected</h2>
+            <ul>
+                <li>Keep the loom, tap budget, draft, and power-ups working</li>
+                <li>Show and measure ads that support a free title</li>
+                <li>Diagnose crashes or compatibility issues on iOS 17 and later</li>
+                <li>Meet store, tax, and fraud-prevention duties where they apply</li>
+            </ul>
+            <p>Where a legal-basis framing helps (for example GDPR-style language for EEA players), we rely on providing the game you installed, legitimate interests in running a sustainable free puzzle and keeping it secure, and consent when Apple or local law requires it for tracking.</p>
+        </article>
+
+        <article class="row" id="share">
+            <header><span>Row 06</span><span>Who can see a strand</span></header>
+            <h2>Sharing and processors</h2>
+            <p>Information leaves the device only in these categories — never as a public dump of your finished cloth:</p>
+            <ul>
+                <li><strong>Advertising and measurement networks</strong> that fill or count ad space</li>
+                <li><strong>Infrastructure</strong> that delivers the binary and updates through Apple</li>
+                <li><strong>Authorities</strong> if a lawful request requires a response</li>
+            </ul>
+            <p>Apple processes App Store download, purchase, and review activity under Apple’s own rules. This game does not add a separate social login or friend list.</p>
+        </article>
+
+        <article class="row alt" id="keep">
+            <header><span>Row 07</span><span>How long a row stays</span></header>
+            <h2>Retention</h2>
+            <p>Local loom state stays until you delete the app or clear its data. Records held by advertising or diagnostic partners last only as long as their billing, measurement, or security cycles need — a rolling window, not a permanent player dossier.</p>
+            <p>Resetting the advertising identifier on iOS means later ad requests should use the new value. Older aggregated reports cannot always be rewritten.</p>
+        </article>
+
+        <article class="row" id="young">
+            <header><span>Row 08</span><span>Young weavers</span></header>
+            <h2>Children’s privacy</h2>
+            <p>The App Store age rating is 4+. The loom does not ask a child to type a name, upload a photo, or open a chat. We do not knowingly spin a marketing profile of a child from puzzle play.</p>
+            <p>If you are a parent or guardian and believe a minor shared personal information through an ad surface, use the App Store support controls so the report can be reviewed. This title is not a classroom roster or a social network.</p>
+        </article>
+
+        <article class="row alt" id="rights">
+            <header><span>Row 09</span><span>Your heddle levers</span></header>
+            <h2>Choices and regional rights</h2>
+            <ul>
+                <li>Decline App Tracking Transparency if the prompt appears</li>
+                <li>Reset or limit the advertising identifier in iOS Settings</li>
+                <li>Turn off network access for local-only play in a session (ads and updates may fail)</li>
+                <li>Uninstall Loom Weave Puzzle to erase on-device loom data</li>
+            </ul>
+            <p>Depending on where you live, you may ask for access, correction, deletion, or a restriction of processing for personal data that is actually held. Because most warp state never leaves the phone, the practical first step is often deleting the app and resetting the advertising ID.</p>
+            <p>EEA, UK, and similar residents may lodge a complaint with a supervisory authority. California and other U.S. state residents may have rights to know, delete, or opt out of certain sharing used for cross-context advertising. Those requests go through the product support channel below, not a personal mailbox.</p>
+        </article>
+
+        <article class="row warn" id="contact">
+            <header><span>Row 10</span><span>Support &amp; updates</span></header>
+            <h2>How to reach the product</h2>
+            <p>For privacy questions about Loom Weave Puzzle, use Support or Report a Problem on the official App Store listing. Do not send physical mail or identity documents unless a formal legal process requires it.</p>
+            <p><a href="https://apps.apple.com/us/app/loom-weave-puzzle/id6809432285?uo=4" style="color:#2ee6ff;font-weight:700;">Open Loom Weave Puzzle on the App Store</a></p>
+            <p>If this draft changes — for example a new ad-partner category or a new diagnostic — the date on this page will move. Using the game after a posted change means you have seen the new weave.</p>
+        </article>
+    </main>
+
+    <footer>
+        <span>Loom Weave Puzzle · Privacy draft · September 2026</span>
+        <span><a href="index.html">Return to the studio</a></span>
+    </footer>
+</div>
+</body>
+</html>

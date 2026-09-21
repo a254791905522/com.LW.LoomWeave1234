@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loom Weave Puzzle — Raise the Warp. Send the Shuttle.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #070708;
+            --char: #101014;
+            --panel: #17171d;
+            --cyan: #2ee6ff;
+            --cyan-soft: rgba(46, 230, 255, 0.16);
+            --yellow: #ffe14a;
+            --red: #ff3b4a;
+            --mist: #9a9aa6;
+            --text: #f3f3f6;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: "Outfit", sans-serif;
+            background: var(--ink);
+            color: var(--text);
+            line-height: 1.65;
+            min-height: 100vh;
+        }
+
+        .threads {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0,
+                    transparent 86px,
+                    rgba(46, 230, 255, 0.07) 86px,
+                    rgba(46, 230, 255, 0.07) 88px
+                );
+            mask-image: linear-gradient(180deg, #000 0%, transparent 88%);
+        }
+
+        .page { position: relative; z-index: 1; }
+
+        .bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 6vw;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(7, 7, 8, 0.88);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 225, 74, 0.12);
+        }
+
+        .mark {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .mark img {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #000;
+            box-shadow: 0 0 0 1px rgba(46, 230, 255, 0.35), 0 0 22px rgba(46, 230, 255, 0.18);
+        }
+
+        .mark b {
+            font-family: "Unbounded", sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .menu {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+        }
+
+        .menu a {
+            color: var(--mist);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .menu a:hover { color: var(--yellow); }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 22px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .pill:hover { transform: translateY(-2px); }
+
+        .pill-cyan {
+            background: #0d1c22;
+            color: var(--cyan);
+            box-shadow: inset 0 0 0 2px var(--cyan), 0 0 24px rgba(46, 230, 255, 0.16);
+        }
+
+        .pill-yellow {
+            background: var(--yellow);
+            color: #16120a;
+            box-shadow: 0 0 24px rgba(255, 225, 74, 0.22);
+        }
+
+        .hero {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 72px 6vw 40px;
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 56px;
+            align-items: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--yellow);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 28px;
+            height: 8px;
+            border-radius: 99px;
+            background: var(--yellow);
+            box-shadow: 0 0 12px rgba(255, 225, 74, 0.55);
+        }
+
+        h1 {
+            font-family: "Unbounded", sans-serif;
+            font-size: clamp(36px, 5.4vw, 60px);
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 18px;
+        }
+
+        h1 em {
+            font-style: normal;
+            color: var(--cyan);
+            text-shadow: 0 0 28px rgba(46, 230, 255, 0.28);
+        }
+
+        .lead {
+            font-size: 19px;
+            color: var(--mist);
+            max-width: 520px;
+            margin-bottom: 28px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--panel);
+            color: var(--mist);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .chip strong { color: var(--yellow); font-weight: 700; }
+
+        .phone {
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .phone::before,
+        .phone::after {
+            content: "";
+            position: absolute;
+            top: 8%;
+            bottom: 8%;
+            width: 3px;
+            background: linear-gradient(180deg, transparent, var(--cyan), transparent);
+            box-shadow: 0 0 16px var(--cyan);
+            opacity: 0.55;
+        }
+
+        .phone::before { left: 8%; }
+        .phone::after { right: 8%; }
+
+        .phone img {
+            width: min(100%, 300px);
+            border-radius: 28px;
+            background: #000;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(46, 230, 255, 0.22);
+        }
+
+        section { padding: 68px 6vw; }
+
+        .narrow {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: "Unbounded", sans-serif;
+            font-size: clamp(22px, 3vw, 32px);
+            letter-spacing: -0.03em;
+            margin-bottom: 10px;
+        }
+
+        .sub {
+            color: var(--mist);
+            max-width: 620px;
+            margin-bottom: 32px;
+            font-size: 17px;
+        }
+
+        .draft {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        .target {
+            background: #f7f7f7;
+            border-radius: 18px;
+            padding: 16px 14px 18px;
+            color: #111;
+        }
+
+        .target span {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .cells {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            background: #2a2a2e;
+        }
+
+        .cell.on { background: var(--yellow); box-shadow: 0 0 10px rgba(255, 225, 74, 0.35); }
+
+        .passes {
+            display: grid;
+            gap: 14px;
+        }
+
+        .pass {
+            display: grid;
+            grid-template-columns: 72px 1fr;
+            gap: 16px;
+            background: var(--panel);
+            border-radius: 20px;
+            padding: 18px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .pass b {
+            font-family: "Unbounded", sans-serif;
+            font-size: 13px;
+            color: var(--cyan);
+        }
+
+        .pass h3 { font-size: 18px; margin-bottom: 4px; }
+        .pass p { color: var(--mist); font-size: 15px; }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--char);
+            border-radius: 22px;
+            overflow: hidden;
+            border: 1px solid rgba(46, 230, 255, 0.12);
+        }
+
+        .card img {
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            object-fit: cover;
+            display: block;
+            background: #000;
+        }
+
+        .card figcaption {
+            padding: 12px 12px 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--yellow);
+        }
+
+        .loom-band {
+            background:
+                linear-gradient(180deg, rgba(46, 230, 255, 0.05), transparent 40%),
+                var(--char);
+            border-top: 1px solid rgba(46, 230, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 225, 74, 0.08);
+        }
+
+        .traits {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .trait {
+            background: var(--ink);
+            border-radius: 22px;
+            padding: 24px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trait::after {
+            content: "";
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            width: 10px;
+            height: 36px;
+            border-radius: 99px;
+            background: var(--yellow);
+            box-shadow: 0 18px 0 var(--yellow);
+            opacity: 0.9;
+        }
+
+        .trait h3 {
+            font-family: "Unbounded", sans-serif;
+            font-size: 15px;
+            margin: 0 48px 10px 0;
+        }
+
+        .trait p { color: var(--mist); }
+
+        .story {
+            max-width: 780px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .story p {
+            color: var(--mist);
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .shuttle {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 20px;
+            background: var(--panel);
+            border-radius: 28px;
+            padding: 32px;
+            border: 1px solid rgba(255, 59, 74, 0.18);
+        }
+
+        .meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .meta div {
+            background: var(--ink);
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+
+        .meta small {
+            display: block;
+            color: var(--red);
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .get {
+            text-align: center;
+            padding: 28px 20px;
+            border-radius: 22px;
+            background: #0c0c10;
+            box-shadow: inset 0 0 0 2px var(--cyan);
+        }
+
+        .get p { color: var(--mist); margin: 10px 0 18px; }
+
+        footer {
+            padding: 28px 6vw 40px;
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            color: var(--mist);
+            font-size: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        footer a { color: var(--cyan); text-decoration: none; }
+
+        .cta-short { display: none; }
+
+        @media (max-width: 960px) {
+            .hero, .draft, .shuttle { grid-template-columns: 1fr; }
+            .gallery { grid-template-columns: 1fr 1fr; }
+            .traits { grid-template-columns: 1fr 1fr; }
+            .phone::before, .phone::after { display: none; }
+        }
+
+        @media (max-width: 640px) {
+            .bar { padding: 12px 18px; }
+            .menu a:not(.pill) { display: none; }
+            .cta-full { display: none; }
+            .cta-short { display: inline; }
+            .traits, .meta { grid-template-columns: 1fr; }
+            .shuttle { padding: 20px 16px; }
+            .pass { grid-template-columns: 1fr; gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+<div class="threads" aria-hidden="true"></div>
+<div class="page">
+    <nav class="bar">
+        <a class="mark" href="index.html">
+            <img src="assets/icon.jpg" alt="Loom Weave Puzzle icon">
+            <b>Loom Weave</b>
+        </a>
+        <div class="menu">
+            <a href="#weave">How to Weave</a>
+            <a href="#studio">Studio</a>
+            <a href="privacy.html">Privacy</a>
+            <a class="pill pill-cyan" href="https://apps.apple.com/us/app/loom-weave-puzzle/id6809432285?uo=4"><span class="cta-full">Download on the App Store</span><span class="cta-short">App Store</span></a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div>
+            <p class="eyebrow">Traditional loom · Precision puzzle</p>
+            <h1>Raise the warp.<br><em>Send the shuttle.</em></h1>
+            <p class="lead">Set every vertical thread before the weft crosses. One tap lifts or drops a warp. One correct row becomes fabric. The next pass asks for a new arrangement.</p>
+            <div class="actions">
+                <a class="pill pill-yellow" href="https://apps.apple.com/us/app/loom-weave-puzzle/id6809432285?uo=4">Download on the App Store</a>
+                <a class="pill pill-cyan" href="#weave">See the loom</a>
+            </div>
+            <div class="chips">
+                <span class="chip"><strong>Free</strong> · Puzzle</span>
+                <span class="chip"><strong>4+</strong> age rating</span>
+                <span class="chip"><strong>iOS 17.0+</strong> iPhone &amp; iPad</span>
+            </div>
+        </div>
+        <div class="phone">
+            <img src="assets/icon.jpg" alt="Neon loom threads and yellow heddles">
+        </div>
+    </header>
+
+    <section id="studio">
+        <div class="narrow">
+            <h2>Inside the studio</h2>
+            <p class="sub">A dark loom, cyan warp lines, yellow heddles, and a red shuttle. The white draft at the top is the pattern you must reproduce — row by row.</p>
+            <div class="gallery">
+                <figure class="card">
+                    <img src="assets/shot1.jpg" alt="Main menu with Play Now and Level Select">
+                    <figcaption>Enter the loom</figcaption>
+                </figure>
+                <figure class="card">
+                    <img src="assets/shot2.jpg" alt="Level 1 with four warp threads and a red shuttle">
+                    <figcaption>First pass</figcaption>
+                </figure>
+                <figure class="card">
+                    <img src="assets/shot3.jpg" alt="Level 2 showing a different heddle setup">
+                    <figcaption>Change the shed</figcaption>
+                </figure>
+                <figure class="card">
+                    <img src="assets/shot4.jpg" alt="Later level with a denser target pattern">
+                    <figcaption>Later designs</figcaption>
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <section class="loom-band" id="weave">
+        <div class="narrow">
+            <h2>How a pass works</h2>
+            <p class="sub">Think like a weaver. Read the draft, prepare the shed, then let the shuttle travel. Taps are limited, so plan before you touch a thread.</p>
+            <div class="draft">
+                <aside class="target" aria-label="Example target pattern">
+                    <span>Target draft</span>
+                    <div class="cells">
+                        <i class="cell on"></i><i class="cell on"></i><i class="cell on"></i><i class="cell on"></i>
+                        <i class="cell on"></i><i class="cell"></i><i class="cell on"></i><i class="cell"></i>
+                    </div>
+                </aside>
+                <div class="passes">
+                    <article class="pass">
+                        <b>01</b>
+                        <div>
+                            <h3>Read the squares</h3>
+                            <p>Yellow cells mean those warps should sit high. Dark cells mean those warps stay low for the coming weft.</p>
+                        </div>
+                    </article>
+                    <article class="pass">
+                        <b>02</b>
+                        <div>
+                            <h3>Tap to raise or lower</h3>
+                            <p>Each cyan thread is a warp. Tap it to flip its heddle. Raised threads hold the weft above them; lowered threads let it slip underneath.</p>
+                        </div>
+                    </article>
+                    <article class="pass">
+                        <b>03</b>
+                        <div>
+                            <h3>Watch the red shuttle</h3>
+                            <p>When the shed matches the next required row, the shuttle crosses and a new line of cloth appears. The draft then asks for a different setup.</p>
+                        </div>
+                    </article>
+                    <article class="pass">
+                        <b>04</b>
+                        <div>
+                            <h3>Spend taps with care</h3>
+                            <p>Later patterns add more threads and force repeated state changes. Prepare the whole row before the shuttle moves — wasted taps end the attempt.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="narrow">
+            <h2>What the loom asks of you</h2>
+            <p class="sub">Short sessions, rising thread counts, and a pattern that only exists if every pass is exact.</p>
+            <div class="traits">
+                <article class="trait">
+                    <h3>Thread control</h3>
+                    <p>You operate a traditional loom: individual warps, not a paint bucket. Every lift and drop is a decision the cloth will remember.</p>
+                </article>
+                <article class="trait">
+                    <h3>Changing sheds</h3>
+                    <p>The required arrangement is never static. After one successful pass, the next row wants a new combination of raised and lowered threads.</p>
+                </article>
+                <article class="trait">
+                    <h3>Tap economy</h3>
+                    <p>Each level gives a tap budget. Flip only what must change. Extra motion is cloth you never get to weave.</p>
+                </article>
+                <article class="trait">
+                    <h3>Growing drafts</h3>
+                    <p>Early boards use a handful of warps. Later designs stretch the loom and demand several state changes before the shuttle is allowed across.</p>
+                </article>
+                <article class="trait">
+                    <h3>Studio tools</h3>
+                    <p>Jump in from Play Now, browse Level Select, pause mid-pass, and spend coins on power-ups when a stubborn row needs help.</p>
+                </article>
+                <article class="trait">
+                    <h3>Quiet focus</h3>
+                    <p>No story dump. Just neon threads, a glowing shuttle, and the satisfaction of a pattern that finally matches the draft.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="story">
+            <p class="eyebrow" style="justify-content:center;">About the game</p>
+            <h2>Cloth, one shuttle at a time</h2>
+            <p>Loom Weave Puzzle is a weaving logic game. You stand at a compact digital loom and reproduce a target pattern by setting warp threads before each weft pass.</p>
+            <p>There is no account to create and no social feed to fill. You read the draft, move heddles, and build fabric. If you enjoy patient spatial puzzles and the feel of a real loom — lift, lower, send the shuttle — this studio is set up for you.</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="narrow">
+            <div class="shuttle">
+                <div>
+                    <p class="eyebrow">Product notes</p>
+                    <h2>Ready on iPhone and iPad</h2>
+                    <div class="meta">
+                        <div><small>Genre</small>Puzzle · Casual</div>
+                        <div><small>Price</small>Free to download</div>
+                        <div><small>Requires</small>iOS 17.0 or later</div>
+                        <div><small>Language</small>English</div>
+                        <div><small>Version</small>1.1</div>
+                        <div><small>Age</small>4+</div>
+                    </div>
+                </div>
+                <div class="get">
+                    <p class="eyebrow" style="justify-content:center;">Get the loom</p>
+                    <p>Install Loom Weave Puzzle from the App Store and start the first pass.</p>
+                    <a class="pill pill-yellow" href="https://apps.apple.com/us/app/loom-weave-puzzle/id6809432285?uo=4">Download on the App Store</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <span>Loom Weave Puzzle · A loom logic game for iOS</span>
+        <span><a href="privacy.html">Privacy draft</a> · Product support via the App Store listing</span>
+    </footer>
+</div>
+</body>
+</html>
